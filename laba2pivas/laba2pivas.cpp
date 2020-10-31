@@ -9,20 +9,16 @@ private:
 	int* arr = nullptr;
 public:
 	int size = 0;
-	Stack(int s)
-	{
-		size = s;
-		arr = new int[size];
-	}
+	Stack(int s) { size = s; arr = new int[size]; }
 	~Stack() { delete[] arr; }
 	void push(int val) // добавляет элемент в стек на вершину
 	{
-		if (peek > size) return;
+		if (peek == size-1) return;
 		arr[++peek] = val;		
 	}
 	int pop() // выталкивает верхний элемент из стека
 	{
-		if (peek < -1) return NULL;
+		if (peek == -1) return NULL;
 		return arr[peek--];
 	}
 	int top() { return *(arr + peek); }
@@ -56,26 +52,22 @@ class Queue
 {
 private:
 	int peek = -1;
-	int tail = 0;
+	int tail = -1;
 	int* arr = nullptr;
 public:
 	int size;
-	Queue(int s)
-	{
-		size = s;
-		arr = new int[size];
-	}
+	Queue(int s) { size = s; arr = new int[size];  }
 	~Queue() { delete[] arr; }
 	void push(int val)	 // стандартный метод вталкивания элемента
 	{
-		if (peek > size) return;
+		if (peek == size-1) return;
 		arr[++peek] = val;
 	}
-	void init()	{ delete[] arr; }
+	void init() { delete[] arr; peek = tail = -1; arr = nullptr; }
 	int pop()	 // стандартный метод выталкивания элемента
 	{
-		if (tail > peek) return NULL;
-		return arr[tail++];
+		if (tail == peek) return NULL;
+		return arr[++tail];
 	}
 	int top() { return *(arr+peek); } // взятие верхнего значения без его удаления из очереди
 	int bot() { return *(arr+tail); } // взятие нижнего значения без его удаления из очереди
@@ -155,12 +147,12 @@ void merge_sort(Stack& s) // FIX ME ... тут проблема.
 	Stack a(s.size/2);
 	Stack b(s.size/2);
 	int n = s.size;
-	Queue c[] = { (n / 2), (n / 2) };
+	Queue c[] = { (n), (n) };
 	split(s,a,b);
 	int p = 1, q = 0, r = 0;
 	while (p < n) // чтобы понять лучше, чекни Теория, раздел 6 методы сортировки послед..
 	{			  // я оттуда переписыавл
-		c[0].init(); c[1].init();
+		c[0].init(); c[1].init();  // очереди "зануляются", и в дальнейшем никак не заполняются
 		int i = 0, m = n; 
 		while (m > 0)
 		{
@@ -168,8 +160,8 @@ void merge_sort(Stack& s) // FIX ME ... тут проблема.
 			m = m - q;
 			if (m >= p) r = p; else r = m;
 			m = m - r;
-			merge(s, a, b, c[i]);
-			i = 1 - i;
+			merge(s, a, b, c[i]); // а здесь они пустыми вызываются в другой метод
+			i = 1 - i;					
 		}
 		qts(c[0], a);
 		qts(c[1], b);
