@@ -63,46 +63,60 @@ public:
 		if (peek == size-1) return;
 		arr[++peek] = val;
 	}
-	void init() { delete[] arr; peek = tail = -1; arr = nullptr; }
+	void set_arr() { arr = new int[size]; }
+	void init() {  peek = tail = -1; }  // убрал тут удаление массива и переадресацию на нуллптр
+
 	int pop()	 // стандартный метод выталкивания элемента
 	{
 		if (tail == peek) return NULL;
 		return arr[++tail];
 	}
+	void print_stack() // распечатывает стек в консоль
+	{
+		if (arr == nullptr) return;
+		for (int i = 0; i < size; i++)
+		{
+			std::cout << arr[i] << " ";
+			if ((i != 0) && (i % 15 == 0))
+				std::cout << "\n";
+		}
+		std::cout << "\n\n";
+	}
 	int top() { return *(arr+peek); } // взятие верхнего значения без его удаления из очереди
 	int bot() { return *(arr+tail); } // взятие нижнего значения без его удаления из очереди
 	bool is_empty() // пустая ли очередь
 	{
-		if (arr == nullptr) return true;
+		if (peek == tail) return true;
 		else return false;
 	}
 };
 
-void fill_stack(Stack& s, int ch, int size)
+
+void fill_stack(Stack& s, int ch)
 {
 	switch (ch)
 	{
 	case 1: // возрастающими числами
 	{
-		for (int i = 0; i < size; i ++)		
+		for (int i = 0; i < s.size; i ++)		
 			s.push(i);	
 		break;
 	}
 	case 2: // убывающими
 	{
-		for (int i = size; i >= 0; i--)
+		for (int i = s.size; i >= 0; i--)
 			s.push(i);
 		break;
 	}
 	case 3: // случайными
 	{
-		for (int i = 0; i < size; i++)
-			s.push(rand() % size);
+		for (int i = 0; i < s.size; i++)
+			s.push(rand() % s.size);
 	}
 	}
 }
 
-void merge(Stack& s, Stack& a, Stack& b, Queue& c) 
+void merge(Stack& a, Stack& b, Queue& c) 
 {
 	while ((!a.is_empty()) && (!b.is_empty()))
 	{
@@ -113,13 +127,9 @@ void merge(Stack& s, Stack& a, Stack& b, Queue& c)
 	}
 	while (!a.is_empty())
 		c.push(a.pop());
+
 	while (!b.is_empty())
 		c.push(b.pop());
-	while (!c.is_empty())
-	{
-		s.push(c.pop());
-	}
-
 }
 
 void split(Stack& s,static Stack& a,static Stack& b)
@@ -135,24 +145,21 @@ void split(Stack& s,static Stack& a,static Stack& b)
 
 void qts(Queue& q, Stack& s)
 {
-	int sz = q.size;
-	for (int i = 0; i < sz; i++)
-	{
-		s.push(q.pop());
-	}
+	while(!q.is_empty())	
+		s.push(q.pop());	
 }
 
-void merge_sort(Stack& s) // FIX ME ... тут проблема. 
+void merge_sort(Stack& s) 
 {
-	Stack a(s.size/2);
-	Stack b(s.size/2);
+	Stack a(s.size);
+	Stack b(s.size);
 	int n = s.size;
 	Queue c[] = { (n), (n) };
 	split(s,a,b);
 	int p = 1, q = 0, r = 0;
-	while (p < n) // чтобы понять лучше, чекни Теория, раздел 6 методы сортировки послед..
-	{			  // я оттуда переписыавл
-		c[0].init(); c[1].init();  // очереди "зануляются", и в дальнейшем никак не заполняются
+	while (p < n)
+	{			
+		c[0].init(); c[1].init(); 
 		int i = 0, m = n; 
 		while (m > 0)
 		{
@@ -160,14 +167,13 @@ void merge_sort(Stack& s) // FIX ME ... тут проблема.
 			m = m - q;
 			if (m >= p) r = p; else r = m;
 			m = m - r;
-			merge(s, a, b, c[i]); // а здесь они пустыми вызываются в другой метод
+			merge(a, b, c[i]);
 			i = 1 - i;					
 		}
 		qts(c[0], a);
 		qts(c[1], b);
 		p = 2 * p;
 	}
-	//
 	qts(c[0], s);
 }
 
@@ -181,19 +187,34 @@ void console_dial()
 	std::cout << "Выберите способ заполнения стека\n1)Возрастающими числами\n2)Убывающими\n3)Случайными\n";
 	
 	std::cin >> ch;
-	fill_stack(main_stack, ch, size);
+	fill_stack(main_stack, ch);
 	main_stack.print_stack();
 	merge_sort(main_stack);
 	main_stack.print_stack();
 
 }
 
+
+/*void test1()
+{
+	Stack test_s(100);
+	Queue test_q(100);
+	fill_stack(test_s, 3);
+	while (!test_s.is_empty())
+		test_q.push(test_s.pop());
+	test_q.print_stack();
+	while (!test_q.is_empty())
+		test_s.push(test_q.pop());
+	test_s.print_stack();
+}*/
+
 int main()
 {
 	setlocale(LC_ALL, "Russian");
 	while (1)
 	{
-		console_dial();
+	console_dial();
 	}
+	//test1();
 }
 
